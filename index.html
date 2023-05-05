@@ -1,54 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>QR Code Scanner</title>
+    <style>
+      #video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      #overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        color: white;
+        visibility: hidden;
+      }
+      #overlay.success {
+        background-color: rgba(0, 255, 0, 0.5);
+      }
+      #overlay.error {
+        background-color: rgba(255, 0, 0, 0.5);
+      }
+      #button {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
-    <header>
-      <nav>
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
-    </header>
-    <main>
-      <div id="scanner-container">
-        <video id="scanner-video"></video>
-      </div>
-      <div id="message-container">
-        <h2 id="success-message" style="display: none;">Success!</h2>
-        <h2 id="error-message" style="display: none;">Error!</h2>
-      </div>
-    </main>
-    <footer>
-      <p>&copy; 2023 My Company</p>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/instascan@1.0.0/instascan.min.js"></script>
+    <button id="button">Scan QR Code</button>
+    <div id="overlay"></div>
+    <script src="https://rawgit.com/cozmo/jsQR/master/dist/jsQR.js"></script>
     <script>
-      const scannerContainer = document.getElementById('scanner-container');
-      const scannerVideo = document.getElementById('scanner-video');
-      const successMessage = document.getElementById('success-message');
-      const errorMessage = document.getElementById('error-message');
-      const scanner = new Instascan.Scanner({ video: scannerVideo });
-      scanner.addListener('scan', function (content) {
-        if (content === 'CB.EN.U4CSE21435') {
-          successMessage.style.display = 'block';
-          errorMessage.style.display = 'none';
-        } else {
-          successMessage.style.display = 'none';
-          errorMessage.style.display = 'block';
-        }
+      const video = document.createElement("video");
+      const canvasElement = document.createElement("canvas");
+      const canvas = canvasElement.getContext("2d");
+      const overlay = document.getElementById("overlay");
+      const button = document.getElementById("button");
+      
+      // set up video stream
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then((stream) => {
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
       });
-      Instascan.Camera.getCameras().then(function (cameras) {
-        if (cameras.length > 0) {
-          scanner.start(cameras[0]);
+
+      // scan for QR code on button click
+      button.addEventListener("click", () => {
+        const width = video.offsetWidth;
+        const height = video.offsetHeight;
+        canvasElement.width = width;
+        canvasElement.height = height;
+        canvas.drawImage(video, 0, 0, width, height);
+        const imageData = canvas.getImageData(0, 0, width, height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert",
+        });
+        if (code && code.data === "CB.EN.U4CSE21435") {
+          overlay.classList.add("success");
+          overlay.textContent = "QR Code Verified!";
         } else {
-          console.error('No cameras found.');
+          overlay.classList.add("error");
+          overlay.textContent = "QR Code Error!";
         }
-      }).catch(function (error) {
-        console.error(error);
+        overlay.style.visibility = "visible";
       });
     </script>
   </body>
