@@ -18,12 +18,10 @@
 			max-width: 500px;
 			text-align: center;
 		}
-		#qr-reader {
+		#video {
 			width: 100%;
-			margin-top: 20px;
-		}
-		#qr-reader video {
-			max-width: 100%;
+			max-width: 500px;
+			margin-bottom: 20px;
 		}
 		.success {
 			color: #4CAF50;
@@ -36,28 +34,48 @@
 <body>
 	<div class="container">
 		<h2>Scan QR Code</h2>
-		<div id="qr-reader"></div>
+		<video id="video" playsinline></video>
 		<div id="output"></div>
 	</div>
-	<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsqr.min.js"></script>
 	<script>
-		let scanner = new Instascan.Scanner({ video: document.getElementById('qr-reader') });
-		scanner.addListener('scan', function (content) {
-			if (content === 'CB.EN.U4CSE21435') {
-				document.getElementById('output').innerHTML = '<p class="success">QR Code Verified!</p>';
-			} else {
-				document.getElementById('output').innerHTML = '<p class="error">QR Code Error!</p>';
-			}
-		});
-		Instascan.Camera.getCameras().then(function (cameras) {
-			if (cameras.length > 0) {
-				scanner.start(cameras[0]);
-			} else {
-				console.error('No cameras found.');
-			}
-		}).catch(function (e) {
-			console.error(e);
-		});
+		// Check for camera support
+		if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+			alert('Sorry, camera access is not available.');
+		} else {
+			// Access the camera
+			navigator.mediaDevices.getUserMedia({ video: true })
+				.then(function (stream) {
+					// Set the video element source
+					var video = document.getElementById('video');
+					video.srcObject = stream;
+					video.play();
+
+					// Start scanning for QR codes
+					setInterval(function () {
+						var canvas = document.createElement('canvas');
+						canvas.width = video.videoWidth;
+						canvas.height = video.videoHeight;
+						canvas.getContext('2d').drawImage(video, 0, 0);
+						var imageData = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+						var code = jsQR(imageData.data, imageData.width, imageData.height, {
+							inversionAttempts: 'dontInvert',
+						});
+
+						if (code) {
+							// Check if the scanned QR code matches the expected string
+							if (code.data === 'CB.EN.U4CSE21435') {
+								document.getElementById('output').innerHTML = '<p class="success">QR Code Verified!</p>';
+							} else {
+								document.getElementById('output').innerHTML = '<p class="error">QR Code Error!</p>';
+							}
+						}
+					}, 100);
+				})
+				.catch(function (error) {
+					console.error(error);
+				});
+		}
 	</script>
 </body>
 </html>
