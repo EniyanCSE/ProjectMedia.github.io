@@ -8,6 +8,7 @@
 			background-color: black;
 			margin: 0;
 			padding: 0;
+            overflow: hidden;
 		}
 		.logo {
 			position: absolute;
@@ -63,6 +64,10 @@
 		setTimeout(() => {
 			logo.remove();
 		}, 5000);
+
+        setTimeout(() => {
+			window.location.href ="login.html";
+		}, 6000);
 	</script>
 </body>
 </html>
