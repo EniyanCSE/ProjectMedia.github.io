@@ -1,70 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>QR Code Scanner</title>
-  </head>
-  <body>
-    <header>
-      <nav>
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
-    </header>
-    <main>
-      <div id="scanner-container">
-        <video id="scanner-video" style="width: 100%; height: auto;"></video>
-        <button id="scanner-button">Scan QR Code</button>
-      </div>
-      <div id="message-container">
-        <h2 id="success-message" style="display: none;">Success!</h2>
-        <h2 id="error-message" style="display: none;">Error!</h2>
-      </div>
-    </main>
-    <footer>
-      <p>&copy; 2023 My Company</p>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/instascan@1.0.0/instascan.min.js"></script>
-    <script>
-      const scannerContainer = document.getElementById('scanner-container');
-      const scannerVideo = document.getElementById('scanner-video');
-      const scannerButton = document.getElementById('scanner-button');
-      const successMessage = document.getElementById('success-message');
-      const errorMessage = document.getElementById('error-message');
+<head>
+	<meta charset="UTF-8">
+	<title>Logo Zoom and Fade</title>
+	<style>
+		body {
+			background-color: black;
+			margin: 0;
+			padding: 0;
+		}
+		.logo {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) scale(0.01);
+			opacity: 1;
+			transition: transform 300s ease-out, opacity 3s ease-out;
+		}
+		
+		@media screen and (min-width: 576px) {
+			.logo {
+				transform: translate(-50%, -50%) scale(0.04);
+			}
+		}
 
-      let scanner = null;
+		@media screen and (min-width: 768px) {
+			.logo {
+				transform: translate(-50%, -50%) scale(0.06);
+			}
+		}
 
-      scannerButton.addEventListener('click', async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          scannerVideo.srcObject = stream;
-          scannerVideo.play();
-          scanner = new Instascan.Scanner({ video: scannerVideo });
-          scanner.addListener('scan', function (content) {
-            if (content === 'CB.EN.U4CSE21435') {
-              successMessage.style.display = 'block';
-              errorMessage.style.display = 'none';
-            } else {
-              successMessage.style.display = 'none';
-              errorMessage.style.display = 'block';
-            }
-            scanner.stop();
-          });
-          Instascan.Camera.getCameras().then(function (cameras) {
-            if (cameras.length > 0) {
-              scanner.start(cameras[0]);
-            } else {
-              console.error('No cameras found.');
-            }
-          }).catch(function (error) {
-            console.error(error);
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      });
-    </script>
-  </body>
+		@media screen and (min-width: 992px) {
+			.logo {
+				transform: translate(-50%, -50%) scale(0.1);
+			}
+		}
+
+		@media screen and (min-width: 1200px) {
+			.logo {
+				transform: translate(-50%, -50%) scale(0.03);
+			}
+		}
+	</style>
+</head>
+<body>
+	<img src="new.png" alt="Logo" class="logo">
+
+	<script>
+		const logo = document.querySelector(".logo");
+
+		// Zoom in to 50% after 2 seconds
+		setTimeout(() => {
+			logo.style.transform = "translate(-50%, -50%) scale(150)";
+		}, 2000);
+
+		// Fade out after 5 seconds
+		setTimeout(() => {
+			logo.style.opacity = 0;
+		}, 2000);
+
+		// Remove logo after 6 seconds
+		setTimeout(() => {
+			logo.remove();
+		}, 5000);
+	</script>
+</body>
 </html>
