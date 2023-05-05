@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>QR Code Scanner</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+			background-color: #f1f1f1;
+		}
+		.container {
+			background-color: #ffffff;
+			border-radius: 10px;
+			box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2);
+			padding: 20px;
+			margin: 50px auto;
+			max-width: 500px;
+			text-align: center;
+		}
+		#qr-reader {
+			width: 100%;
+			margin-top: 20px;
+		}
+		#qr-reader video {
+			max-width: 100%;
+		}
+		.success {
+			color: #4CAF50;
+		}
+		.error {
+			color: #f44336;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h2>Scan QR Code</h2>
+		<div id="qr-reader"></div>
+		<div id="output"></div>
+	</div>
+	<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+	<script>
+		let scanner = new Instascan.Scanner({ video: document.getElementById('qr-reader') });
+		scanner.addListener('scan', function (content) {
+			if (content === 'CB.EN.U4CSE21435') {
+				document.getElementById('output').innerHTML = '<p class="success">QR Code Verified!</p>';
+			} else {
+				document.getElementById('output').innerHTML = '<p class="error">QR Code Error!</p>';
+			}
+		});
+		Instascan.Camera.getCameras().then(function (cameras) {
+			if (cameras.length > 0) {
+				scanner.start(cameras[0]);
+			} else {
+				console.error('No cameras found.');
+			}
+		}).catch(function (e) {
+			console.error(e);
+		});
+	</script>
+</body>
+</html>
